@@ -40,7 +40,7 @@ const UserCard = () => {
                 }
               });
             }
-            console.log(resultArrayItem);
+            ////console.log(resultArrayItem);
           });
 
           setItems(resultArray);
@@ -62,23 +62,30 @@ const UserCard = () => {
   let outputArray = []
 
   
-   items.map((currentItems) => {
-   // console.log("1-", currentItems[1]);
-   outputArray.push(currentItems[0], currentItems[1])
-    if (Array.isArray(currentItems[1])) {
-     // console.log("2-", currentItems[1][1]);
-     outputArray.push(currentItems[1][0], currentItems[1][1])
-      currentItems[1].map((currentItems2) => {
-      //  console.log("3-", currentItems2[1]);
+  //// /*// //items.map((currentItems) => {
+   //// console.log("1-", currentItems[1]);
+   ////outputArray.push(currentItems[0], currentItems[1])
+   //// if (Array.isArray(currentItems[1])) {
+     //// console.log("2-", currentItems[1][1]);
+     ////outputArray.push(currentItems[1][0], currentItems[1][1])
+     //// currentItems[1].map((currentItems2) => {
+      ////  console.log("3-", currentItems2[1]);
+      ////outputArray.push(currentItems2[0], currentItems[1])
+      ////  if (Array.isArray(currentItems2[0])) {
+      ////    currentItems2[1].map((currentItems3) => {
+       ////     console.log("4-", currentItems3[1]);
+      ////    });
+     ////   }
+     //// });
+   //// }
+ //// });  */
 
-        if (Array.isArray(currentItems2[1])) {
-          currentItems2[1].map((currentItems3) => {
-          //  console.log("4-", currentItems3[1]);
-          });
-        }
-      });
-    }
-  }); 
+ items.map((currentItem) => {
+  outputArray.push(currentItem)
+
+ })
+
+  console.log('outputArray--',outputArray);
 
   if (error) {
     return <div>Ошибка: {error.message}</div>;
@@ -87,10 +94,21 @@ const UserCard = () => {
   } else {
     return <>
     
-    {outputArray.map((rrr) => {
+    
 
-<div>{rrr[1]  }</div>
-    })}
+<ListGroup>
+          {outputArray.map((outputArrayitem) => (
+            <ListGroup.Item
+              key={outputArrayitem.id}
+              id={outputArrayitem.id}
+              
+              
+             
+            >
+               <div>{outputArrayitem  }</div>
+            </ListGroup.Item>
+          ))}
+        </ListGroup>
     
    
   
