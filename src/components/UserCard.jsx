@@ -15,9 +15,9 @@ const UserCard = () => {
   // этот useEffect будет запущен один раз
   // аналогично componentDidMount()
   useEffect(() => {
-    //// fetch(`https://jsonplaceholder.typicode.com/users/${params.userId}`)
+     fetch(`https://jsonplaceholder.typicode.com/users/${params.userId}`)
     //захардкодил одного юзера для теста
-    fetch(`https://jsonplaceholder.typicode.com/users/5`)
+    //fetch(`https://jsonplaceholder.typicode.com/users/5`)
       .then((res) => res.json())
       .then(
         (result) => {
@@ -56,15 +56,15 @@ const UserCard = () => {
   function getString(Myitem) {
     try {
       if (!Array.isArray(Myitem[1])) {
-        return Myitem[0] + "-эта строка рендерится--" + Myitem[1];
+        return Myitem[0] + "-эта строка рендерится--" + Myitem[1]; 
       } else if (Array.isArray(Myitem[1])) {
         Myitem[1].map((item2) => {
           if (!Array.isArray(item2[0])) {
             console.log(
               "здесь данные в консоль выводятся, но не рендерятся ",
-              item2[0] + "--" + item2[1]
-            );
-            return item2[0] + "--" + item2[1];
+              item2[0] + "--" + item2[1]  
+            ); 
+            return <div>999</div>////item2[0] + "--" + item2[1];
           } else return "also_hello";
         });
       } else {
