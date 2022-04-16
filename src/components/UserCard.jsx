@@ -143,10 +143,10 @@ const UserCard = () => {
                     </Card.Link>
                     <br />
                     <hr></hr>
-                    <Button variant="primary" onClick={deletePosts}>
+                    <Button variant="primary" onClick={deletePosts}  className="m-2">
                       Delete posts
                     </Button>
-                    <Button variant="primary" onClick={showPosts}>
+                                       <Button variant="primary" onClick={showPosts} className="m-2">
                       Show posts
                     </Button>
                   </Card.Body>
