@@ -7,22 +7,26 @@ import Container from "react-bootstrap/Container";
 import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";
+import Modal from "react-bootstrap/Modal";
 import { useParams } from "react-router-dom";
 
-
 const UserCard = () => {
-  const [error, setError] = useState(null);
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [items, setItems] = useState([]);
-  const [posts, setPosts] = useState([]);
-  const [newPost, setnewPost] = useState([]);
+  const [error, setError] = useState(null); //служебный для useEffect
+  const [isLoaded, setIsLoaded] = useState(false); //служебный загрузчик
+  const [items, setItems] = useState([]); //все данные по текущему пользователю
+  const [posts, setPosts] = useState([]); //все посты пользователя
+  const [newPost, setnewPost] = useState([]); //служебный. При заполнении случайным числом запускаем useEffect  и получаем все посты пользователя
+  const [modalShow, setModalShow] = React.useState(false); //служебный. Отвечает за видимость модального окна
+  //let inputEl = useRef(null);
+
+  const [currentPost, setCurrentPost] = useState(0); //при клике на див через этот стейт передаем текущий ид поста в модальное окно
+  const [currentComments, setCurrentComments] = useState();
+
+  // let currentPost = 0;
 
   const params = useParams();
-  //const fruits = ["Яблоко", "Банан"];
 
-  // Примечание: пустой массив зависимостей [] означает, что
-  // этот useEffect будет запущен один раз
-  // аналогично componentDidMount()
+  // получаем все данные по текущему пользователю
   useEffect(() => {
     fetch(`https://jsonplaceholder.typicode.com/users/${params.userId}`)
       //захардкодил одного юзера для теста
@@ -43,18 +47,16 @@ const UserCard = () => {
         }
       );
   }, []);
+  //конец получаем все данные по текущему пользователю
 
   //console.log(items);
   console.log("основной стейт с данными для вывода ", items);
-  let ttt = 0
-  const firstUpdate = useRef(false);
+
+  const firstUpdate = useRef(false); //стейт для определения первой загрузки. При первой загрузке не выводим все посты. Только по кнопке
 
   //получаем посты пользователя
-
   useEffect(() => {
-    console.log('firstUpdate3',firstUpdate)
     if (firstUpdate.current) {
-      console.log('firstUpdate',firstUpdate)
       fetch(
         `https://jsonplaceholder.typicode.com/posts/?userId=${params.userId}`
       )
@@ -73,26 +75,107 @@ const UserCard = () => {
             setError(error);
           }
         );
-    }
-    else {
-      console.log('firstUpdate',firstUpdate)
+    } else {
     }
   }, [newPost]);
-
-  
   //конец получаем посты пользователя
 
+  //получаем все комментарии к посту
+  useEffect(() => {
+    if (firstUpdate.current) {
+      fetch(
+        `https://jsonplaceholder.typicode.com/comments/?postId=${currentPost}`
+      )
+        .then((res) => res.json())
+        .then(
+          (result) => {
+            setIsLoaded(true);
+            firstUpdate.current = true;
+            setCurrentComments(Object.values(result));
+            ////console.log("items ", items);
+          },
+          // Примечание: важно обрабатывать ошибки именно здесь, а не в блоке catch(),
+          // чтобы не перехватывать исключения из ошибок в самих компонентах.
+          (error) => {
+            setIsLoaded(true);
+            setError(error);
+          }
+        );
+    } else {
+    }
+  }, [currentPost]);
+  console.log("currentComments", currentComments);
+  //конец получаем все комментарии к посту
+
+  //очищаем стейт с постами
   function deletePosts() {
-    firstUpdate.current = false;   
-    setPosts([]); 
-    console.log('newPost', newPost)   
+    firstUpdate.current = false;
+    setPosts([]);
+    // console.log("newPost", newPost);
   }
 
+  //объявляем что вызов не первый. Заполняем стейт рандомным числом чтобы запустить useeffect для получения постов
   function showPosts() {
     firstUpdate.current = true;
-    setnewPost(ttt+Math.random());
-    console.log('newPost', newPost)   
+    setnewPost(Math.random());
+    //console.log("newPost", newPost);
   }
+
+  function getComments(postId) {
+    console.log("comments", postId);
+  }
+
+  //модальное окошко
+  function MyVerticallyCenteredModal(props) {
+    return (
+      <Modal
+        {...props}
+        size="lg"
+        aria-labelledby="contained-modal-title-vcenter"
+        centered
+      >
+        <Modal.Header closeButton>
+          <Modal.Title id="contained-modal-title-vcenter">
+            Comments for post #{currentPost}
+            {console.log(currentPost)}
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <h4>Centered Modal</h4>
+          <p>
+            Cras mattis consectetur purus sit amet fermentum. Cras justo odio,
+            dapibus ac facilisis in, egestas eget quam. Morbi leo risus, porta
+            ac consectetur ac, vestibulum at eros.
+          </p>
+
+          <ListGroup className="list-group-flush">
+            <ListGroup.Item>
+              {" "}
+              {
+                <div className="container">
+                  {currentComments?.map((comment, index) => (
+                    <div id={comment.id}>
+                      <ListGroup.Item key={index}>
+                        {" "}
+                        comment#{comment.id} <br /> Title: {comment.name} <br />{" "}
+                        Author: ({comment.email}) <br />
+                        <hr></hr> Body: {comment.body}{" "}
+                      </ListGroup.Item>
+                    </div>
+                  ))}
+                </div>
+              }
+            </ListGroup.Item>
+          </ListGroup>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button onClick={props.onHide}>Close</Button>
+        </Modal.Footer>
+      </Modal>
+    );
+  }
+
+  ////////////////////////////////////
 
   if (error) {
     return <div>Ошибка: {error.message}</div>;
@@ -143,11 +226,19 @@ const UserCard = () => {
                     </Card.Link>
                     <br />
                     <hr></hr>
-                    <Button variant="primary" onClick={deletePosts}  className="m-2">
-                      Delete posts
-                    </Button>
-                                       <Button variant="primary" onClick={showPosts} className="m-2">
+                    <Button
+                      variant="primary"
+                      onClick={showPosts}
+                      className="m-2"
+                    >
                       Show posts
+                    </Button>
+                    <Button
+                      variant="primary"
+                      onClick={deletePosts}
+                      className="m-2"
+                    >
+                      Hide posts
                     </Button>
                   </Card.Body>
                 </Card>
@@ -160,11 +251,24 @@ const UserCard = () => {
                       {
                         <div className="container">
                           {posts?.map((post, index) => (
-                            <ListGroup.Item key={index}>
-                              {" "}
-                              #{post.id} Title: {post.title} <br />
-                              <hr></hr> Body: {post.body}{" "}
-                            </ListGroup.Item>
+                            <div
+                              id={post.id}
+                              onClick={() => setCurrentPost(post.id)}
+                            >
+                              <ListGroup.Item
+                                key={index}
+                                onClick={() => setModalShow(true)}
+                              >
+                                {" "}
+                                id={post.id} Title: {post.title} <br />
+                                <hr></hr> Body: {post.body}{" "}
+                              </ListGroup.Item>
+                              <MyVerticallyCenteredModal
+                                show={modalShow}
+                                onHide={() => setModalShow(false)}
+                                //postid={post.id}
+                              />
+                            </div>
                           ))}
                         </div>
                       }
